@@ -1,6 +1,17 @@
+import { useEffect, useState } from "react";
+import { getBlogs } from "../helpers/getBlogs";
 import BlogCard from "./BlogCard";
+// import InfiniteScroll from 'react-infinite-scroll-component';
 
 const BlogSection = () => {
+  const [blogs, setBlogs] = useState([]);
+
+  useEffect(() => {
+    getBlogs()
+      .then((data) => setBlogs(data))
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
     <div className="my-20 mx-10  md:mx-auto w-fit flex flex-col md:flex-row gap-3 lg:gap-8 justify-center items-center ">
       <div className="py-3 flex mb-4 flex-col gap-3 w-fit  rounded-2xl shadow-md mx-auto bg-white">
@@ -37,10 +48,12 @@ const BlogSection = () => {
 
       {/* Other section */}
       <div className="grid grid-cols-1 gap-3 md:h-[80vh] md:overflow-y-scroll md:px-3 md:pb-2 scroll-hide">
-        <BlogCard />
-        <BlogCard />
-        <BlogCard />
-        <BlogCard />
+        {blogs?.map((blog) => (
+          <BlogCard key={blog._id} {...blog} />
+        ))}
+        {blogs?.map((blog) => (
+          <BlogCard key={blog._id} {...blog} />
+        ))}
       </div>
     </div>
   );

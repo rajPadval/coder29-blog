@@ -3,6 +3,7 @@ import AdminNavbar from "../components/AdminNavbar";
 import CreateBlog from "../components/CreateBlog";
 import axios from "axios";
 import toast from "react-hot-toast";
+import AllBlogs from "../components/AllBlogs";
 
 const Admin = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -74,6 +75,7 @@ const Admin = () => {
                 type="password"
                 name="password"
                 id="password"
+                autoComplete="password"
                 required
                 placeholder="Enter your username"
                 className="rounded-2xl px-3 py-1 text-lg outline-none bg-gray-100"
@@ -90,7 +92,8 @@ const Admin = () => {
       ) : (
         <div>
           <AdminNavbar />
-          <CreateBlog />
+          {/* <CreateBlog /> */}
+          <AllBlogs />
         </div>
       )}
     </>

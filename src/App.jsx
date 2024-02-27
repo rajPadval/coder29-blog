@@ -2,11 +2,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Blog from "./pages/Blog";
 import Admin from "./pages/Admin";
+import Footer from "./components/Footer";
+import { Toaster } from "react-hot-toast";
 
 export default function App() {
   return (
     <>
       <BrowserRouter>
+        <Toaster />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/blog/:id" element={<Blog />} />
@@ -20,6 +23,7 @@ export default function App() {
             }
           />
         </Routes>
+        <Footer />
       </BrowserRouter>
     </>
   );

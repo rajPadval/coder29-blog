@@ -9,7 +9,7 @@ const Home = () => {
       <Navbar />
       <MainSection />
       <BlogSection />
-      <Footer/>
+     
     </div>
   );
 };
