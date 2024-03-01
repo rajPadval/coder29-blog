@@ -12,7 +12,9 @@ const BlogCard = ({ thumbnail, title, tags, _id }) => {
         className="md:w-[20vw] rounded-2xl md:rounded-3xl"
       />
       <div>
-        <h3 className="text-xl font-bold">{title}</h3>
+        <h3 className="text-xl font-bold">
+          {title.length > 30 ? title.slice(0, 30) + "..." : title}
+        </h3>
         <div className="flex gap-2 py-2 ">
           {tags?.map((tag, i) => {
             return (

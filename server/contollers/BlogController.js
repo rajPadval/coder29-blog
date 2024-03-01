@@ -81,14 +81,16 @@ const getBlogById = async (req, res) => {
 
 const addComment = async (req, res) => {
   const { id } = req.params;
-  const { comment } = req.body;
+  const { comment, userName, userImage, userId } = req.body;
 
   try {
     let blog = await Blog.findByIdAndUpdate(id, {
       $push: {
         comments: {
           comment,
-          commentedBy: "Anonymous",
+          userName,
+          userImage,
+          userId,
         },
       },
     });

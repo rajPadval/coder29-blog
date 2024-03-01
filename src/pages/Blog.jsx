@@ -1,17 +1,31 @@
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AiFillHome } from "react-icons/ai";
 import { getBlogs } from "../helpers/getBlogs";
 import BlogCard from "../components/BlogCard";
 import { MdAccountCircle } from "react-icons/md";
 import toast from "react-hot-toast";
+import { auth } from "../firebaseConfig";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import BlogContext from "../context/BlogContext";
 
 const Blog = () => {
   const { id } = useParams();
   const [blog, setBlog] = useState([]);
   const [blogs, setBlogs] = useState([]);
   const [newComment, setNewComment] = useState("");
+
+  const {
+    userAuthenticated,
+    setUserAuthenticated,
+    userName,
+    setUserName,
+    userImage,
+    setUserImage,
+    userId,
+    setUserId,
+  } = useContext(BlogContext);
 
   const getBlogById = useCallback(async (id) => {
     const res = await axios.get(`http://localhost:5000/api/getBlogById/${id}`);
@@ -20,13 +34,50 @@ const Blog = () => {
     setBlog(data.blog);
   }, []);
 
+  const provider = new GoogleAuthProvider();
+
+  const signInWithGoogle = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        const { displayName, photoURL, uid } = result.user;
+        console.log("User is ", result.user);
+        setUserName(displayName);
+        setUserImage(photoURL);
+        setUserId(uid);
+        setUserAuthenticated(true);
+        toast.success(`Welcome ${displayName} 👋`);
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
+
+  const signOutWithGoogle = () => {
+    auth.signOut().then(() => {
+      setUserAuthenticated(false);
+      setUserName("");
+      setUserImage("");
+      setUserId("");
+      toast.success("Logged out successfully");
+    });
+  };
+
   const addComment = async () => {
+    if (!userAuthenticated) {
+      return toast.error("Please login to comment");
+    }
+
     if (newComment.trim() === "" || newComment.split(" ").length < 3) {
       toast.error("Comment should be at least 3 words long");
       return;
     }
     const res = await axios.post(`http://localhost:5000/api/addComment/${id}`, {
       comment: newComment,
+      userName,
+      userImage,
+      userId,
     });
     const data = await res.data;
     toast.success(data.message);
@@ -79,7 +130,7 @@ const Blog = () => {
           </div>
           <hr />
           <div className="my-5">
-            <p dangerouslySetInnerHTML={{ __html: blog.content }}></p>
+            <p dangerouslySetInnerHTML={{ __html: blog.content }} className="overflow-x-clip"></p>
           </div>
           <div className="flex justify-start items-center gap-3 text-base">
             <img
@@ -127,25 +178,37 @@ const Blog = () => {
                   className="md:w-[35vw] rounded-lg py-2  outline-none shadow-md text-base px-3"
                   placeholder="Write a comment"
                 ></textarea>
-                <button
-                  className="text-white bg-purple-500 hover:bg-purple-400 px-5 py-1 text-base font-semibold transtion-all duration-300 ease-linear rounded-md w-fit"
-                  onClick={addComment}
-                >
-                  Add
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    className="text-white bg-purple-500 hover:bg-purple-400 px-5 py-1 text-base font-semibold transtion-all duration-300 ease-linear rounded-md w-fit"
+                    onClick={addComment}
+                  >
+                    Add
+                  </button>
+                  <button
+                    className="text-white bg-purple-500 hover:bg-purple-400 px-5 py-1 text-base font-semibold transtion-all duration-300 ease-linear rounded-md w-fit"
+                    onClick={
+                      !userAuthenticated ? signInWithGoogle : signOutWithGoogle
+                    }
+                  >
+                    {!userAuthenticated ? "Sign In With Google" : "Sign Out"}
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* listing comments */}
             <div>
-              {blog.comments?.map(({ comment, commentedBy }, i) => (
+              {blog.comments?.map(({ comment, userName, userImage }, i) => (
                 <div
                   className="flex flex-col md:flex-row justify-center items-start md:items-center md:gap-3"
                   key={i}
                 >
-                  <MdAccountCircle className="text-3xl md:text-5xl text-gray-600" />
+                  <img className="text-3xl md:text-5xl text-gray-600" src={userImage} alt={`${userName}'s profile`}/>
                   <div className="bg-white w-full md:w-[35vw] rounded-lg py-2 my-2 text-sm md:text-base px-3 shadow-md ">
-                    <span className="text-xs md:text-sm font-semibold ">{commentedBy}</span>
+                    <span className="text-xs md:text-sm font-semibold ">
+                      {userName}
+                    </span>
                     <p className=" outline-none">{comment}</p>
                   </div>
                 </div>

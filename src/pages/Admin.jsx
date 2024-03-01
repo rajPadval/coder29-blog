@@ -92,7 +92,7 @@ const Admin = () => {
       ) : (
         <div>
           <AdminNavbar />
-          {/* <CreateBlog /> */}
+          <CreateBlog />
           <AllBlogs />
         </div>
       )}
