@@ -50,7 +50,7 @@ const updateBlog = async (req, res) => {
 
 const getAllBlogs = async (req, res) => {
   try {
-    let blogs = await Blog.find();
+    let blogs = await Blog.find().sort({ createdAt: -1 });
     if (!blogs)
       return res
         .status(404)
@@ -79,38 +79,9 @@ const getBlogById = async (req, res) => {
   }
 };
 
-const addComment = async (req, res) => {
-  const { id } = req.params;
-  const { comment, userName, userImage, userId } = req.body;
-
-  try {
-    let blog = await Blog.findByIdAndUpdate(id, {
-      $push: {
-        comments: {
-          comment,
-          userName,
-          userImage,
-          userId,
-        },
-      },
-    });
-    if (!blog)
-      return res
-        .status(404)
-        .json({ success: false, message: "Blog not found" });
-    await blog.save();
-    return res
-      .status(200)
-      .json({ success: true, message: "Comment added successfully" });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
-  }
-};
-
 module.exports = {
   createBlog,
   updateBlog,
   getAllBlogs,
   getBlogById,
-  addComment,
 };

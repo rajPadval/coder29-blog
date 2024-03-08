@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import AdminNavbar from "../components/AdminNavbar";
 import CreateBlog from "../components/CreateBlog";
 import axios from "axios";
 import toast from "react-hot-toast";
 import AllBlogs from "../components/AllBlogs";
+import BlogContext from "../context/BlogContext";
 
 const Admin = () => {
   const [isAuth, setIsAuth] = useState(false);
+  const { tab } = useContext(BlogContext);
 
   const handleLogin = useCallback(async (e) => {
     e.preventDefault();
@@ -92,8 +94,16 @@ const Admin = () => {
       ) : (
         <div>
           <AdminNavbar />
-          <CreateBlog />
-          <AllBlogs />
+          {(() => {
+            switch (tab) {
+              case "CreateBlog":
+                return <CreateBlog />;
+              case "AllBlogs":
+                return <AllBlogs />;
+              default:
+                return <CreateBlog />;
+            }
+          })()}
         </div>
       )}
     </>

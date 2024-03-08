@@ -22,9 +22,12 @@ const blogSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    comments: {
-      type: Array,
-    },
+    comments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
     likes: {
       type: Number,
     },

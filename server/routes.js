@@ -8,8 +8,13 @@ const {
   createBlog,
   getAllBlogs,
   getBlogById,
-  addComment,
 } = require("./contollers/BlogController");
+const {
+  updateComment,
+  deleteComment,
+  addComment,
+  getComment,
+} = require("./contollers/CommentController");
 const verifyToken = require("./middlewares/verifyToken");
 
 const router = require("express").Router();
@@ -22,6 +27,9 @@ router.get("/checkAuth", verifyToken, checkAuth);
 router.post("/createBlog", verifyToken, createBlog);
 router.get("/allBlogs", getAllBlogs);
 router.get("/getBlogById/:id", getBlogById);
+router.get("/getComments/:id", getComment);
 router.post("/addComment/:id", addComment);
+router.put("/updateComment/:blogId/:commentId", updateComment);
+router.delete("/deleteComment/:blogId/:commentId", deleteComment);
 
 module.exports = router;

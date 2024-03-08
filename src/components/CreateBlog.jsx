@@ -4,13 +4,15 @@ import toast from "react-hot-toast";
 import { uploadImage } from "../helpers/uploadImage";
 import axios from "axios";
 import LoadingBar from "react-top-loading-bar";
+import { MdDelete } from "react-icons/md";
 
 const CreateBlog = () => {
   const [title, setTitle] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
   const [content, setContent] = useState("");
   const [progress, setProgress] = useState(0);
-
+  const [tags, setTags] = useState([]);
+  const [currentTag, setCurrentTag] = useState("");
   const createPost = useCallback(
     async (e) => {
       e.preventDefault();
@@ -35,7 +37,7 @@ const CreateBlog = () => {
           title,
           content,
           author: "Coder29",
-          tags: ["coding", "programming"],
+          tags,
           thumbnail: uploadedImage.url,
           publicId: uploadedImage.publicId,
         });
@@ -61,6 +63,20 @@ const CreateBlog = () => {
       setThumbnail(file);
     }
   }, []);
+
+  const addTag = useCallback(
+    (tag) => {
+      setTags((prev) => [...prev, tag]);
+    },
+    [tags, currentTag]
+  );
+
+  const removeTag = useCallback(
+    (tag) => {
+      setTags((prev) => prev.filter((t) => t !== tag));
+    },
+    [tags]
+  );
 
   const editor = useRef(null);
   return (
@@ -104,6 +120,57 @@ const CreateBlog = () => {
             tabIndex={1}
             className="rounded-2xl px-3 py-1 text-lg outline-none bg-gray-100"
           />
+        </div>
+        <div className="flex flex-col">
+          <label
+            htmlFor="thumbnail"
+            className="text-lg font-semibold text-gray-600"
+          >
+            Thumbnail
+          </label>
+          <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-0">
+            <input
+              className="rounded-2xl px-3 py-1 text-lg outline-none bg-gray-100 w-full md:w-[85%]"
+              type="text"
+              name="tag"
+              id="tag"
+              placeholder="Enter the tag here.."
+              required
+              value={currentTag}
+              onChange={(e) => {
+                setCurrentTag(e.target.value);
+              }}
+            />
+            <button
+              className="py-2 px-8 text-base bg-purple-500 hover:bg-purple-400 rounded-3xl text-white font-semibold w-fit"
+              onClick={() => {
+                addTag(currentTag);
+                setCurrentTag("");
+              }}
+            >
+              Add Tag
+            </button>
+          </div>
+
+          <label htmlFor="tags" className="text-lg font-semibold text-gray-600">
+            Selected Tags
+          </label>
+          <div className="bg-gray-100 rounded-2xl">
+            {tags
+              .map((tag, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between items-center  px-2  capitalize"
+                >
+                  <span>{tag}</span>
+                  <MdDelete
+                    className="text-red-400 hover:text-red-600 cursor-pointer"
+                    onClick={() => removeTag(tag)}
+                  />
+                </div>
+              ))
+              .reverse()}
+          </div>
         </div>
         <div>
           <label

@@ -11,7 +11,8 @@ export default function App() {
   const [userAuthenticated, setUserAuthenticated] = useState(false);
   const [userName, setUserName] = useState("");
   const [userImage, setUserImage] = useState("");
-  const [userId, setUserId] = useState("");
+  const [currentUserId, setCurrentUserId] = useState("");
+  const [tab, setTab] = useState("CreateBlog");
 
   return (
     <>
@@ -23,8 +24,10 @@ export default function App() {
           setUserName,
           userImage,
           setUserImage,
-          userId,
-          setUserId,
+          currentUserId,
+          setCurrentUserId,
+          tab,
+          setTab,
         }}
       >
         <BrowserRouter>

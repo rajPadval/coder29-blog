@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
+import { convertDate } from "../helpers/convetDate";
 
-const BlogCard = ({ thumbnail, title, tags, _id }) => {
+const BlogCard = ({ thumbnail, title, tags, _id, createdAt, author }) => {
   return (
     <Link
       to={`/blog/${_id}`}
@@ -35,8 +36,8 @@ const BlogCard = ({ thumbnail, title, tags, _id }) => {
             className="rounded-full w-[30px] h-[30px]"
           />
           <div>
-            <h4 className="font-bold text-sm">Coder29</h4>
-            <p className="font-bold text-sm">Jun 20, 2021</p>
+            <h4 className="font-bold text-sm">{author}</h4>
+            <p className="font-bold text-sm">{convertDate(createdAt)}</p>
           </div>
         </div>
       </div>

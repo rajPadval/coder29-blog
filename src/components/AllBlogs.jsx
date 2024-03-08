@@ -13,7 +13,7 @@ const AllBlogs = () => {
   }, []);
 
   return (
-    <div className="w-screen flex flex-col gap-3 lg:h-[60vh] justify-center items-center p-5">
+    <div className=" gap-3 p-5 grid grid-cols-2">
       {blogs?.map((blog) => (
         <BlogCard key={blog._id} {...blog} />
       ))}

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useCallback, useEffect, useState, useContext } from "react";
+import { useCallback, useEffect, useState, useContext, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AiFillHome } from "react-icons/ai";
 import { getBlogs } from "../helpers/getBlogs";
@@ -9,12 +9,18 @@ import toast from "react-hot-toast";
 import { auth } from "../firebaseConfig";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import BlogContext from "../context/BlogContext";
+import { MdEdit, MdDelete } from "react-icons/md";
+import { convertDate } from "../helpers/convetDate";
 
 const Blog = () => {
   const { id } = useParams();
   const [blog, setBlog] = useState([]);
   const [blogs, setBlogs] = useState([]);
+  const [blogComments, setBlogComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [editedComment, setEditedComment] = useState("");
+  const [editContent, setEditContent] = useState(false);
+  const [postId, setPostId] = useState("");
 
   const {
     userAuthenticated,
@@ -23,8 +29,8 @@ const Blog = () => {
     setUserName,
     userImage,
     setUserImage,
-    userId,
-    setUserId,
+    currentUserId,
+    setCurrentUserId,
   } = useContext(BlogContext);
 
   const getBlogById = useCallback(async (id) => {
@@ -45,7 +51,7 @@ const Blog = () => {
         console.log("User is ", result.user);
         setUserName(displayName);
         setUserImage(photoURL);
-        setUserId(uid);
+        setCurrentUserId(uid);
         setUserAuthenticated(true);
         toast.success(`Welcome ${displayName} 👋`);
       })
@@ -59,7 +65,7 @@ const Blog = () => {
       setUserAuthenticated(false);
       setUserName("");
       setUserImage("");
-      setUserId("");
+      setCurrentUserId("");
       toast.success("Logged out successfully");
     });
   };
@@ -77,15 +83,50 @@ const Blog = () => {
       comment: newComment,
       userName,
       userImage,
-      userId,
+      userId: currentUserId,
     });
     const data = await res.data;
     toast.success(data.message);
+    getComments(id);
     setNewComment("");
+  };
+
+  const getComments = async (id) => {
+    const res = await axios.get(`http://localhost:5000/api/getComments/${id}`);
+    const data = await res.data;
+    setBlogComments(data.comments);
+  };
+
+  const updateComment = async (commentId) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/updateComment/${id}/${commentId}`,
+        { comment: editedComment }
+      );
+      const data = await res.data;
+      toast.success(data.message);
+      getComments(id);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const deleteComment = async (commentId) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/api/deleteComment/${id}/${commentId}`
+      );
+      const data = await res.data;
+      toast.success(data.message);
+      getComments(id);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
     getBlogById(id);
+    getComments(id);
   }, [id]);
 
   useEffect(() => {
@@ -93,6 +134,29 @@ const Blog = () => {
       .then((data) => setBlogs(data))
       .catch((err) => console.log(err));
   }, []);
+
+  const editableContentRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const div = document.getElementById("commentsDiv");
+      const button = document.getElementById("saveButton");
+      if (
+        div &&
+        !div.contains(e.target) &&
+        e.target !== editableContentRef.current &&
+        !(button && button.contains(e.target))
+      ) {
+        setEditContent(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [setEditContent]);
 
   return (
     <section>
@@ -130,7 +194,10 @@ const Blog = () => {
           </div>
           <hr />
           <div className="my-5">
-            <p dangerouslySetInnerHTML={{ __html: blog.content }} className="overflow-x-clip"></p>
+            <p
+              dangerouslySetInnerHTML={{ __html: blog.content }}
+              className="overflow-x-clip"
+            ></p>
           </div>
           <div className="flex justify-start items-center gap-3 text-base">
             <img
@@ -139,8 +206,8 @@ const Blog = () => {
               className="rounded-full w-[40px] h-[40px]"
             />
             <div>
-              <h4 className="font-bold">Coder29</h4>
-              <p className="font-bold">Jun 20, 2021</p>
+              <h4 className="font-bold">{blog.author}</h4>
+              <p className="font-bold">{convertDate(blog.createdAt)}</p>
             </div>
           </div>
         </div>
@@ -166,7 +233,16 @@ const Blog = () => {
           <div>
             {/* adding comments */}
             <div className="flex justify-between items-start gap-3 my-5">
-              <MdAccountCircle className="text-5xl text-gray-600" />
+              {userAuthenticated ? (
+                <img
+                  src={userImage}
+                  alt={`${userName}'s profile`}
+                  className="w-[50px] rounded-full"
+                />
+              ) : (
+                <MdAccountCircle className="text-5xl text-gray-600" />
+              )}
+
               <div className="flex flex-col w-full gap-2">
                 <textarea
                   name="message"
@@ -199,20 +275,67 @@ const Blog = () => {
 
             {/* listing comments */}
             <div>
-              {blog.comments?.map(({ comment, userName, userImage }, i) => (
-                <div
-                  className="flex flex-col md:flex-row justify-center items-start md:items-center md:gap-3"
-                  key={i}
-                >
-                  <img className="text-3xl md:text-5xl text-gray-600" src={userImage} alt={`${userName}'s profile`}/>
-                  <div className="bg-white w-full md:w-[35vw] rounded-lg py-2 my-2 text-sm md:text-base px-3 shadow-md ">
-                    <span className="text-xs md:text-sm font-semibold ">
-                      {userName}
-                    </span>
-                    <p className=" outline-none">{comment}</p>
+              {blogComments?.map(
+                ({ comment, userName, userImage, userId, _id }) => (
+                  <div
+                    id="commentsDiv"
+                    className="flex flex-col md:flex-row justify-start items-start md:gap-3 my-3"
+                    key={_id}
+                  >
+                    <img
+                      className="rounded-full hidden md:block w-[50px] text-gray-600"
+                      src={`${userImage}`}
+                      alt={`${userName}'s profile`}
+                    />
+                    <div className="bg-white w-full md:w-[35vw] rounded-lg py-2  text-sm md:text-base px-3 shadow-md ">
+                      <div className="flex justify-between">
+                        <span className="text-xs md:text-sm font-semibold ">
+                          {currentUserId === userId ? "You" : userName}
+                        </span>
+                        {currentUserId === userId && (
+                          <div className="flex gap-1">
+                            <MdEdit
+                              onClick={() => {
+                                setEditContent(!editContent);
+                                setPostId(_id);
+                              }}
+                              className="text-gray-500 hover:text-purple-500 hover:scale-105 transition-all ease-in-out cursor-pointer "
+                            />
+                            <MdDelete
+                              onClick={() => deleteComment(_id)}
+                              className="text-gray-500 hover:text-purple-500 hover:scale-105 transition-all ease-in-out cursor-pointer "
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <p
+                        ref={editableContentRef}
+                        className={` outline-none ${
+                          editContent &&
+                          postId === _id &&
+                          currentUserId === userId &&
+                          "bg-gray-100 shadow-inner pl-1 rounded-md my-2 transition-all duration-500 ease-in-out"
+                        }`}
+                        onInput={(e) => setEditedComment(e.target.textContent)}
+                        contentEditable={editContent}
+                      >
+                        {comment}
+                      </p>
+                      {editContent &&
+                        postId === _id &&
+                        currentUserId === userId && (
+                          <button
+                            onClick={() => updateComment(_id)}
+                            id="saveButton"
+                            className="bg-purple-500 hover:bg-purple-600 px-3 py-1 text-white text-sm rounded-lg"
+                          >
+                            Save
+                          </button>
+                        )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         </div>

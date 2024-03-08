@@ -8,8 +8,7 @@ const Home = () => {
     <div>
       <Navbar />
       <MainSection />
-      <BlogSection />
-     
+      <BlogSection />  
     </div>
   );
 };
