@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import { Toaster } from "react-hot-toast";
 import BlogContext from "./context/BlogContext";
 import { useState } from "react";
+import EditBlog from "./components/EditBlog";
 
 export default function App() {
   const [userAuthenticated, setUserAuthenticated] = useState(false);
@@ -13,6 +14,9 @@ export default function App() {
   const [userImage, setUserImage] = useState("");
   const [currentUserId, setCurrentUserId] = useState("");
   const [tab, setTab] = useState("CreateBlog");
+  const [blogs, setBlogs] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isAuth, setIsAuth] = useState(false);
 
   return (
     <>
@@ -28,6 +32,12 @@ export default function App() {
           setCurrentUserId,
           tab,
           setTab,
+          setBlogs,
+          blogs,
+          searchResults,
+          setSearchResults,
+          isAuth,
+          setIsAuth,
         }}
       >
         <BrowserRouter>
@@ -44,6 +54,7 @@ export default function App() {
                 </div>
               }
             />
+            <Route path="/admin/edit/:id" element={<EditBlog />} />
           </Routes>
           <Footer />
         </BrowserRouter>

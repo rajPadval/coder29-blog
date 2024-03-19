@@ -11,6 +11,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import BlogContext from "../context/BlogContext";
 import { MdEdit, MdDelete } from "react-icons/md";
 import { convertDate } from "../helpers/convetDate";
+import { getBlogById } from "../helpers/getBlogById";
 
 const Blog = () => {
   const { id } = useParams();
@@ -32,13 +33,6 @@ const Blog = () => {
     currentUserId,
     setCurrentUserId,
   } = useContext(BlogContext);
-
-  const getBlogById = useCallback(async (id) => {
-    const res = await axios.get(`http://localhost:5000/api/getBlogById/${id}`);
-    const data = await res.data;
-    console.log(data.blog);
-    setBlog(data.blog);
-  }, []);
 
   const provider = new GoogleAuthProvider();
 
@@ -125,7 +119,9 @@ const Blog = () => {
   };
 
   useEffect(() => {
-    getBlogById(id);
+    getBlogById(id)
+      .then((data) => setBlog(data))
+      .catch((err) => console.log(err.message));
     getComments(id);
   }, [id]);
 
@@ -185,7 +181,7 @@ const Blog = () => {
               return (
                 <span
                   key={i}
-                  className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white  rounded-full font-semibold shadow-md"
+                  className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white  rounded-full font-semibold shadow-md capitalize"
                 >
                   {tag}
                 </span>
@@ -284,9 +280,10 @@ const Blog = () => {
                   >
                     <img
                       className="rounded-full hidden md:block w-[50px] text-gray-600"
-                      src={`${userImage}`}
-                      alt={`${userName}'s profile`}
+                      src={userImage}
+                      // alt={`${userName}'s profile`}
                     />
+
                     <div className="bg-white w-full md:w-[35vw] rounded-lg py-2  text-sm md:text-base px-3 shadow-md ">
                       <div className="flex justify-between">
                         <span className="text-xs md:text-sm font-semibold ">

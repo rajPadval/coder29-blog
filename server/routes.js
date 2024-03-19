@@ -8,6 +8,7 @@ const {
   createBlog,
   getAllBlogs,
   getBlogById,
+  deleteBlog,
 } = require("./contollers/BlogController");
 const {
   updateComment,
@@ -27,6 +28,8 @@ router.get("/checkAuth", verifyToken, checkAuth);
 router.post("/createBlog", verifyToken, createBlog);
 router.get("/allBlogs", getAllBlogs);
 router.get("/getBlogById/:id", getBlogById);
+router.delete("/deleteBlog/:id", verifyToken, deleteBlog);
+
 router.get("/getComments/:id", getComment);
 router.post("/addComment/:id", addComment);
 router.put("/updateComment/:blogId/:commentId", updateComment);

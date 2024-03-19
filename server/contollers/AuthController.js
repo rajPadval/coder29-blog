@@ -59,12 +59,12 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
+  console.log("logout");
+
   try {
-    res.cookie("token", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      secure: true,
-    });
+    return res
+      .clearCookie("token")
+      .json({ success: true, message: "Logged Out" });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }

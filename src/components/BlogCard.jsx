@@ -1,18 +1,24 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { convertDate } from "../helpers/convetDate";
+import { MdOutlineMoreVert } from "react-icons/md";
+import { useState } from "react";
+import MoreOptions from "./MoreOptions";
 
 const BlogCard = ({ thumbnail, title, tags, _id, createdAt, author }) => {
+  const { pathname } = useLocation();
+  const [menuVisible, setMenuVisible] = useState(false);
+
   return (
     <Link
       to={`/blog/${_id}`}
-      className="flex flex-col md:flex-row py-2  gap-3 justify-start items-center md:px-5 rounded-2xl shadow-md bg-white w-full "
+      className="relative flex flex-col md:flex-row py-2  gap-3 justify-start items-center  md:px-5 rounded-2xl shadow-md bg-white w-full h-fit "
     >
       <img
         src={thumbnail}
         alt=""
         className="md:w-[20vw] rounded-2xl md:rounded-3xl"
       />
-      <div>
+      <div className="px-3 md:px-0">
         <h3 className="text-xl font-bold">
           {title.length > 30 ? title.slice(0, 30) + "..." : title}
         </h3>
@@ -21,7 +27,7 @@ const BlogCard = ({ thumbnail, title, tags, _id, createdAt, author }) => {
             return (
               <span
                 key={i}
-                className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white  rounded-full font-semibold shadow-md"
+                className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white  rounded-full font-semibold shadow-md capitalize"
               >
                 {tag}
               </span>
@@ -41,6 +47,13 @@ const BlogCard = ({ thumbnail, title, tags, _id, createdAt, author }) => {
           </div>
         </div>
       </div>
+      {pathname === "/admin" && (
+        <MdOutlineMoreVert
+          className="absolute top-5 right-5 z-10 text-2xl hover:text-purple-500 transition-all duration-300  ease-linear"
+          onMouseEnter={() => setMenuVisible(!menuVisible)}
+        />
+      )}
+      {menuVisible && <MoreOptions id={_id} />}
     </Link>
   );
 };

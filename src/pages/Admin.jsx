@@ -5,10 +5,11 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import AllBlogs from "../components/AllBlogs";
 import BlogContext from "../context/BlogContext";
+import { checkAuth } from "../helpers/checkAuth";
 
 const Admin = () => {
-  const [isAuth, setIsAuth] = useState(false);
-  const { tab } = useContext(BlogContext);
+  
+  const { tab, isAuth, setIsAuth } = useContext(BlogContext);
 
   const handleLogin = useCallback(async (e) => {
     e.preventDefault();
@@ -25,21 +26,10 @@ const Admin = () => {
     }
   }, []);
 
-  const checkAuth = useCallback(async () => {
-    axios.defaults.withCredentials = true;
-    try {
-      const res = await axios.get("http://localhost:5000/api/checkAuth", {
-        withCredentials: true,
-      });
-      const data = await res.data;
-      setIsAuth(data.success);
-    } catch (err) {
-      console.log("Error : ", err.message);
-    }
-  }, []);
-
   useEffect(() => {
-    checkAuth();
+    checkAuth()
+      .then((data) => setIsAuth(data))
+      .catch((err) => console.log(err.message));
   }, []);
 
   return (

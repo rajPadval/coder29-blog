@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getBlogs } from "../helpers/getBlogs";
 import { convertDate } from "../helpers/convetDate";
 import BlogCard from "./BlogCard";
+import BlogContext from "../context/BlogContext";
 // import InfiniteScroll from 'react-infinite-scroll-component';
 
 const BlogSection = () => {
-  const [blogs, setBlogs] = useState([]);
+ 
+const {blogs,setBlogs} = useContext(BlogContext);
 
   useEffect(() => {
     getBlogs()
@@ -34,7 +36,7 @@ const BlogSection = () => {
             return (
               <span
                 key={i}
-                className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white  rounded-full font-semibold shadow-md"
+                className="px-4 py-2 text-gray-600 text-xs md:text-sm bg-white  rounded-full font-semibold shadow-md capitalize"
               >
                 {tag}
               </span>

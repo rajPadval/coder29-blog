@@ -1,4 +1,5 @@
 const Blog = require("../models/Blog");
+const Comment = require('../models/Comment')
 
 const createBlog = async (req, res) => {
   const { title, content, author, tags, thumbnail, publicId } = req.body;
@@ -79,9 +80,25 @@ const getBlogById = async (req, res) => {
   }
 };
 
+const deleteBlog = async (req, res) => {
+  const { id } = req.params;
+  try {
+    let blog = await Blog.findByIdAndDelete(id);
+    await Comment.deleteMany({ postId: id });
+    if (!blog)
+      return res
+        .status(404)
+        .json({ success: false, message: "Blog not found" });
+    return res.status(200).json({ success: true, message: "Blog deleted" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createBlog,
   updateBlog,
   getAllBlogs,
   getBlogById,
+  deleteBlog,
 };

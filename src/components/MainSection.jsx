@@ -26,7 +26,7 @@ const MainSection = () => {
           {blogs[0]?.tags?.map((tag, i) => (
             <span
               key={i}
-              className="px-3 py-2 text-xs md:text-sm bg-white  rounded-full font-semibold"
+              className="px-3 py-2 text-xs md:text-sm bg-white  rounded-full font-semibold capitalize"
             >
               {tag}
             </span>

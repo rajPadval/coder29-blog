@@ -46,7 +46,8 @@ const CreateBlog = () => {
         setTitle("");
         setThumbnail(null);
         setContent("");
-        setProgress(0);
+        setProgress(0); 
+        setTags([]);
       } catch (error) {
         console.log("Error:", error.message);
       }
@@ -126,7 +127,7 @@ const CreateBlog = () => {
             htmlFor="thumbnail"
             className="text-lg font-semibold text-gray-600"
           >
-            Thumbnail
+            Tags
           </label>
           <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-0">
             <input
@@ -135,7 +136,6 @@ const CreateBlog = () => {
               name="tag"
               id="tag"
               placeholder="Enter the tag here.."
-              required
               value={currentTag}
               onChange={(e) => {
                 setCurrentTag(e.target.value);
